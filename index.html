@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Where To Buy – Jenny Loves Me</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<style>
+  :root {
+    --rose:       #c8647a;
+    --rose-dark:  #a34d64;
+    --rose-light: #f7e8ec;
+    --rose-pale:  #fdf3f5;
+    --green:      #4a7c5e;
+    --green-light:#e8f2ec;
+    --cream:      #faf7f4;
+    --charcoal:   #2c2c2c;
+    --mid:        #6b6b6b;
+    --border:     #e8dde2;
+    --white:      #ffffff;
+    --shadow:     0 4px 24px rgba(200,100,122,0.10);
+    --shadow-sm:  0 2px 10px rgba(0,0,0,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px 22px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 16px rgba(200,100,122,0.07);
+  }
+  .header-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--rose);
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .header-logo span { font-style: italic; font-weight: 400; }
+  .header-sep {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--mid);
+    font-style: italic;
+  }
+  .header-count {
+    margin-left: auto;
+    background: var(--rose-light);
+    color: var(--rose-dark);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  /* ── HERO STRIP ── */
+  .hero {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
+    color: white;
+    text-align: center;
+    padding: 52px 24px 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .hero h1 em { font-style: italic; font-weight: 400; }
+  .hero p {
+    font-size: 1rem;
+    opacity: 0.88;
+    font-weight: 300;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── SEARCH / FILTER BAR ── */
+  .controls {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--mid);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    background: var(--rose-pale);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--rose); background: var(--white); }
+  .search-input::placeholder { color: #b0a0a8; }
+
+  .filter-btn {
+    padding: 10px 18px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--rose); color: var(--rose); }
+  .filter-btn.active {
+    background: var(--rose);
+    border-color: var(--rose);
+    color: white;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    height: calc(100vh - 200px);
+    min-height: 520px;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--white);
+    z-index: 2;
+  }
+  .sidebar-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--charcoal);
+    font-weight: 700;
+  }
+  .sidebar-header small {
+    color: var(--mid);
+    font-size: 0.78rem;
+    display: block;
+    margin-top: 3px;
+  }
+
+  .store-list { flex: 1; }
+
+  .store-card {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0e8ec;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    animation: fadeIn 0.3s ease both;
+  }
+  .store-card:hover { background: var(--rose-pale); }
+  .store-card.active { background: var(--rose-light); border-left: 3px solid var(--rose); }
+
+  .store-num {
+    min-width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--rose-light);
+    color: var(--rose-dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .store-card.active .store-num {
+    background: var(--rose);
+    color: white;
+  }
+
+  .store-info { flex: 1; min-width: 0; }
+  .store-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .store-addr {
+    font-size: 0.78rem;
+    color: var(--mid);
+    line-height: 1.4;
+    margin-bottom: 5px;
+  }
+  .store-phone {
+    font-size: 0.76rem;
+    color: var(--mid);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .store-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .tag-region {
+    background: var(--green-light);
+    color: var(--green);
+  }
+  .tag-no-link {
+    background: #f0f0f0;
+    color: #999;
+  }
+  .store-links {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+  }
+  .btn-shop {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    background: var(--rose);
+    color: white;
+    border-radius: 100px;
+    font-size: 0.73rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.18s;
+  }
+  .btn-shop:hover { background: var(--rose-dark); }
+  .btn-directions {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border: 1.5px solid var(--border);
+    color: var(--mid);
+    border-radius: 100px;
+    font-size: 0.73rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.18s;
+    background: transparent;
+  }
+  .btn-directions:hover { border-color: var(--rose); color: var(--rose); }
+
+  .no-results {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--mid);
+    font-size: 0.88rem;
+  }
+  .no-results svg { margin-bottom: 12px; opacity: 0.4; }
+
+  /* ── MAP ── */
+  #map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  /* Custom Leaflet popup */
+  .leaflet-popup-content-wrapper {
+    border-radius: 14px !important;
+    box-shadow: 0 8px 32px rgba(200,100,122,0.18) !important;
+    border: none !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  .leaflet-popup-content {
+    margin: 0 !important;
+    width: 260px !important;
+  }
+  .leaflet-popup-tip { background: white !important; }
+  .popup-inner {
+    padding: 18px 18px 14px;
+  }
+  .popup-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .popup-addr {
+    font-size: 0.78rem;
+    color: var(--mid);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .popup-phone {
+    font-size: 0.76rem;
+    color: var(--mid);
+    margin-bottom: 10px;
+  }
+  .popup-actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 18px 16px;
+    background: var(--rose-pale);
+    border-top: 1px solid var(--border);
+  }
+
+  /* Custom marker */
+  .jenny-marker {
+    width: 32px;
+    height: 32px;
+    background: var(--rose);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(200,100,122,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .jenny-marker.active-marker {
+    background: var(--rose-dark);
+    transform: rotate(-45deg) scale(1.25);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FOOTER STRIP ── */
+  .footer-strip {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 14px 32px;
+    text-align: center;
+    font-size: 0.76rem;
+    color: var(--mid);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .footer-strip a { color: var(--rose); text-decoration: none; }
+  .footer-strip a:hover { text-decoration: underline; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: 55vh 1fr;
+      height: auto;
+    }
+    #map { order: -1; }
+    .sidebar { height: 50vh; }
+    .header { padding: 16px 20px; }
+    .controls { padding: 12px 16px; }
+    .header-sep, .header-title { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a class="header-logo" href="https://jennyloves.me">Jenny <span>Loves</span> Me</a>
+  <div class="header-sep"></div>
+  <div class="header-title">New York Store Locator</div>
+  <div class="header-count" id="storeCount">55 Locations</div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Find <em>Jenny</em> Near You</h1>
+  <p>Our products are available at licensed cannabis dispensaries across New York State. Find your nearest location below.</p>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" type="text" id="searchInput" placeholder="Search by name, neighborhood, or city…"/>
+  </div>
+  <button class="filter-btn active" data-region="all">All NY</button>
+  <button class="filter-btn" data-region="manhattan">Manhattan</button>
+  <button class="filter-btn" data-region="brooklyn">Brooklyn</button>
+  <button class="filter-btn" data-region="bronx">Bronx</button>
+  <button class="filter-btn" data-region="queens">Queens</button>
+  <button class="filter-btn" data-region="upstate">Upstate</button>
+  <button class="filter-btn" data-region="li">Long Island</button>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>Dispensary Locations</h3>
+      <small id="sidebarCount">Showing all 55 stores</small>
+    </div>
+    <div class="store-list" id="storeList"></div>
+  </div>
+
+  <!-- MAP -->
+  <div id="map"></div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-strip">
+  <span>© 2026 Jenny Loves Me · NY License #OCM-AUCP-22-000013</span>
+  <span>Stuyvesant NY 12173 · <a href="tel:+19176093517">917-609-3517</a> · <a href="mailto:info@jennyloves.me">info@jennyloves.me</a></span>
+  <span>For use only by persons 21+. Keep out of reach of children.</span>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+// ─────────────────────────────────────────────
+// STORE DATA  (all 55 locations, geocoded)
+// ─────────────────────────────────────────────
+const stores = [
+  {
+    name: "Bayside Cannabis Dispensary",
+    aka: "Bayside Supply I",
+    address: "22415 Union Tpke, Oakland Gardens, NY 11364",
+    phone: "(929) 300-5153",
+    link: "https://bit.ly/4uiXaI7",
+    region: "queens",
+    lat: 40.7365, lng: -73.7580
+  },
+  {
+    name: "BX Buddiez",
+    aka: "Storytellers New York, LLC",
+    address: "2935 3rd Ave, Bronx, NY 10455",
+    phone: "(718) 500-2293",
+    link: "https://bit.ly/4uiXmHl",
+    region: "bronx",
+    lat: 40.8092, lng: -73.9198
+  },
+  {
+    name: "By Any Other Name",
+    aka: "Xander Legacy",
+    address: "946 Fulton St, Brooklyn, NY 11230",
+    phone: "(917) 734-8829",
+    link: null,
+    region: "brooklyn",
+    lat: 40.6800, lng: -73.9560
+  },
+  {
+    name: "CannaFamily Dispensary",
+    aka: "SRCG, LLC",
+    address: "102-15 159th Road, Howard Beach, NY 11414",
+    phone: "(516) 660-5077",
+    link: "https://bit.ly/3QsVPjl",
+    region: "queens",
+    lat: 40.6578, lng: -73.8454
+  },
+  {
+    name: "Carnegie Hill Dispensary",
+    aka: null,
+    address: "1720 Second Ave, New York, NY 10128",
+    phone: null,
+    link: "https://carnegiehillcannabis.com/store/category/all",
+    region: "manhattan",
+    lat: 40.7830, lng: -73.9517
+  },
+  {
+    name: "Chelsea Cannabis",
+    aka: "Actualize",
+    address: "104 7th Avenue, New York, NY 10011",
+    phone: "(740) 398-1562",
+    link: "https://bit.ly/4ueLBkW",
+    region: "manhattan",
+    lat: 40.7396, lng: -74.0001
+  },
+  {
+    name: "Culture House",
+    aka: null,
+    address: "958 6th Ave of the Americas, New York, NY 10001",
+    phone: "(858) 837-0293",
+    link: "https://culturehousenyc.com/?s=jenny",
+    region: "manhattan",
+    lat: 40.7484, lng: -73.9967
+  },
+  {
+    name: "CultureHouse Greenpoint",
+    aka: null,
+    address: "807 Manhattan Ave, Brooklyn, NY 11222",
+    phone: null,
+    link: "https://culturehousenyc.com/?s=jenny",
+    region: "brooklyn",
+    lat: 40.7237, lng: -73.9513
+  },
+  {
+    name: "Cussin's Cannabis",
+    aka: null,
+    address: "2075 Central Avenue, Schenectady, NY 12304",
+    phone: "(518) 533-8200",
+    link: "https://bit.ly/4daaAAa",
+    region: "upstate",
+    lat: 42.8110, lng: -73.9351
+  },
+  {
+    name: "Dispo Store",
+    aka: null,
+    address: "584 4th Avenue, Brooklyn, NY 11215",
+    phone: "(310) 210-8791",
+    link: "https://bit.ly/3QAnqiw",
+    region: "brooklyn",
+    lat: 40.6681, lng: -73.9893
+  },
+  {
+    name: "Elevation HQ",
+    aka: null,
+    address: "701 8th Avenue, New York, NY 10036",
+    phone: "(646) 360-3668",
+    link: "https://elevationhqnyc.com/store/category/all",
+    region: "manhattan",
+    lat: 40.7576, lng: -73.9903
+  },
+  {
+    name: "Emerald BK",
+    aka: "TEDG, LLC",
+    address: "85 Suydam Street, Brooklyn, NY 11221",
+    phone: "(707) 840-5508",
+    link: "https://bit.ly/4cEMr4Q",
+    region: "brooklyn",
+    lat: 40.6990, lng: -73.9257
+  },
+  {
+    name: "Emerald Manhattan",
+    aka: null,
+    address: "1190 Lexington Avenue, New York, NY 10028",
+    phone: "(707) 840-5508",
+    link: "https://bit.ly/4tWu8yh",
+    region: "manhattan",
+    lat: 40.7750, lng: -73.9593
+  },
+  {
+    name: "Emerald Dispensary – Carroll Gardens",
+    aka: null,
+    address: "548 Court Street, Brooklyn, NY 11231",
+    phone: null,
+    link: "https://bit.ly/4eaN07z",
+    region: "brooklyn",
+    lat: 40.6789, lng: -73.9997
+  },
+  {
+    name: "EHS – Rosedale Cannabis #1",
+    aka: null,
+    address: "90-67 Sutphin Blvd, Jamaica, NY 11435",
+    phone: null,
+    link: null,
+    region: "queens",
+    lat: 40.6991, lng: -73.8062
+  },
+  {
+    name: "EHS – Rosedale Cannabis #2",
+    aka: null,
+    address: "245-02 Merrick Blvd, Rosedale, NY",
+    phone: null,
+    link: null,
+    region: "queens",
+    lat: 40.6647, lng: -73.7347
+  },
+  {
+    name: "Freshly Baked NYC",
+    aka: null,
+    address: "2375 Arthur Ave, Bronx, NY 10458",
+    phone: null,
+    link: null,
+    region: "bronx",
+    lat: 40.8550, lng: -73.8836
+  },
+  {
+    name: "Freshly Baked NYC – Midtown",
+    aka: null,
+    address: "40 W 55th St, New York, NY 10019",
+    phone: "(212) 729-9333",
+    link: null,
+    region: "manhattan",
+    lat: 40.7636, lng: -73.9785
+  },
+  {
+    name: "Grow Together Dispensary",
+    aka: null,
+    address: "2370 Coney Island Ave, Brooklyn, NY 11223",
+    phone: "+1 (917) 727-3564",
+    link: "https://bit.ly/4mU2dfD",
+    region: "brooklyn",
+    lat: 40.6117, lng: -73.9635
+  },
+  {
+    name: "Herbal Woodstock",
+    aka: "Plant Meets Public LLC",
+    address: "17 Tinker Street, Woodstock, NY 12491",
+    phone: "(516) 428-6058",
+    link: "http://shop.herbalwoodstock.com/store/category/all",
+    region: "upstate",
+    lat: 42.0404, lng: -74.1165
+  },
+  {
+    name: "House of Strains",
+    aka: "Beast Coast Group",
+    address: "161-05 29th Ave, Flushing, NY 11358",
+    phone: "(646) 246-9405",
+    link: "https://bit.ly/4vXrae7",
+    region: "queens",
+    lat: 40.7614, lng: -73.8259
+  },
+  {
+    name: "KushMart – Kings Highway BK",
+    aka: null,
+    address: "1413 Kings Highway, Brooklyn, NY 11229",
+    phone: "(646) 894-4412",
+    link: "https://bit.ly/3OP9sbS",
+    region: "brooklyn",
+    lat: 40.6087, lng: -73.9573
+  },
+  {
+    name: "KushMart – Avenue U",
+    aka: null,
+    address: "1601 Ave U, Brooklyn, NY 11229",
+    phone: null,
+    link: "https://bit.ly/4ekIQtX",
+    region: "brooklyn",
+    lat: 40.5994, lng: -73.9458
+  },
+  {
+    name: "KushMart – Buffalo (Lackawanna)",
+    aka: null,
+    address: "2470 Hamburg Turnpike, Lackawanna, NY",
+    phone: null,
+    link: "https://kushmart.com/location/lackawanna-ny/shop",
+    region: "upstate",
+    lat: 42.8273, lng: -78.8270
+  },
+  {
+    name: "KushMart – Lancaster",
+    aka: null,
+    address: "5211 Broadway St, Lancaster, NY 14086",
+    phone: null,
+    link: "https://kushmart.com/location/lancaster-ny/shop",
+    region: "upstate",
+    lat: 42.9006, lng: -78.6700
+  },
+  {
+    name: "Lenox Hill Cannabis",
+    aka: "White Box LLC",
+    address: "334 East 73rd Street, New York, NY 10021",
+    phone: "(212) 915-2313",
+    link: "https://bit.ly/4t3vNRd",
+    region: "manhattan",
+    lat: 40.7693, lng: -73.9574
+  },
+  {
+    name: "Lighthouse Cannabis",
+    aka: "Dai Ma, LLC",
+    address: "381 Broadway, New York, NY 10013",
+    phone: "(917) 680-1888",
+    link: "https://www.lighthousecannabis.nyc",
+    region: "manhattan",
+    lat: 40.7197, lng: -74.0017
+  },
+  {
+    name: "MaryJane",
+    aka: "Fabers Arcade",
+    address: "799 Lexington Ave, New York, NY 10065",
+    phone: "(718) 715-6908",
+    link: "https://bit.ly/4udCyAP",
+    region: "manhattan",
+    lat: 40.7654, lng: -73.9657
+  },
+  {
+    name: "NugHub",
+    aka: null,
+    address: "1350 Forest Avenue, Staten Island, NY 10302",
+    phone: "(917) 751-4154",
+    link: "https://bit.ly/4mWHd7X",
+    region: "si",
+    lat: 40.6274, lng: -74.1300
+  },
+  {
+    name: "OC Dispensary",
+    aka: null,
+    address: "769 Franklin Ave, Brooklyn, NY 11238",
+    phone: "(646) 417-4623",
+    link: "https://ocdispensary.co/shop-demo",
+    region: "brooklyn",
+    lat: 40.6751, lng: -73.9584
+  },
+  {
+    name: "Purple Owl",
+    aka: "Westchester Harvesting Company",
+    address: "405 Mamaroneck Ave, Mamaroneck, NY 10605",
+    phone: "(914) 661-1790",
+    link: "https://thepurpleowldispensary.com/shop",
+    region: "upstate",
+    lat: 40.9528, lng: -73.7368
+  },
+  {
+    name: "QUBE",
+    aka: null,
+    address: "1412 Broadway, New York, NY 10018",
+    phone: "(212) 871-0169",
+    link: "https://qubenyc.com/?dtche%5Bpath%5D=products&dtche%5Bsearch%5D=jenny",
+    region: "manhattan",
+    lat: 40.7531, lng: -73.9877
+  },
+  {
+    name: "Sage Seeds",
+    aka: "Down to Earth",
+    address: "24815 Union Turnpike, Queens, NY 11426",
+    phone: "(631) 704-2494",
+    link: "https://sageseedsny.com/stores/sageseeds-ny/products?search=jenny",
+    region: "queens",
+    lat: 40.7247, lng: -73.7143
+  },
+  {
+    name: "Sanctuary Garden",
+    aka: null,
+    address: "2610 Broadway, New York, NY 10025",
+    phone: "(347) 225-2636",
+    link: "https://thesanctuarygarden.co/menu/shop?query=jenny",
+    region: "manhattan",
+    lat: 40.7936, lng: -73.9726
+  },
+  {
+    name: "Smacked – Village",
+    aka: null,
+    address: "144 Bleecker Street, New York, NY 10012",
+    phone: "(973) 380-2095",
+    link: "https://getsmacked.online/menu",
+    region: "manhattan",
+    lat: 40.7282, lng: -74.0004
+  },
+  {
+    name: "Smoking Scholars",
+    aka: null,
+    address: "784 Allerton Ave, Bronx, NY 10467",
+    phone: "(646) 283-4903",
+    link: "https://menus.dispenseapp.com/f1c106dbfcf3b9bc/menu/categories/all?search=jenny",
+    region: "bronx",
+    lat: 40.8692, lng: -73.8643
+  },
+  {
+    name: "Stash Master",
+    aka: "212 Partners",
+    address: "1119 Broadway, Brooklyn, NY 11221",
+    phone: "(718) 509-5114",
+    link: "https://bit.ly/4t03qDi",
+    region: "brooklyn",
+    lat: 40.6903, lng: -73.9244
+  },
+  {
+    name: "Sweetlife",
+    aka: "The Hootch LLC",
+    address: "1662 1st Ave, New York, NY 10028",
+    phone: "(718) 614-7176",
+    link: "https://bit.ly/4mTaPmu",
+    region: "manhattan",
+    lat: 40.7754, lng: -73.9484
+  },
+  {
+    name: "Terp Bros",
+    aka: "Kush Culture Industry, LLC",
+    address: "36-10 Ditmars Blvd, Queens, NY 11105",
+    phone: "(917) 275-6514",
+    link: "https://bit.ly/4sWC1SN",
+    region: "queens",
+    lat: 40.7726, lng: -73.9126
+  },
+  {
+    name: "THC Shop – Rosedale",
+    aka: "Hudson Park Agency",
+    address: "144-07 243rd Street, Rosedale, NY 11422",
+    phone: "(609) 328-0214",
+    link: "https://bit.ly/4tIMt1u",
+    region: "queens",
+    lat: 40.6640, lng: -73.7388
+  },
+  {
+    name: "THC Shop – Brooklyn",
+    aka: "Hudson Economics",
+    address: "1981 86th St, Brooklyn, NY 11214",
+    phone: null,
+    link: "https://bit.ly/4dbk528",
+    region: "brooklyn",
+    lat: 40.6010, lng: -74.0052
+  },
+  {
+    name: "Twenty8gramz",
+    aka: null,
+    address: "2201 Ave U, Brooklyn, NY 11229",
+    phone: "(720) 266-0977",
+    link: "https://bit.ly/4eMeFvE",
+    region: "brooklyn",
+    lat: 40.5989, lng: -73.9379
+  },
+  {
+    name: "Verdi Dispensary – Park Slope",
+    aka: null,
+    address: "360 7th Ave, Brooklyn, NY 11215",
+    phone: "(347) 422-0024",
+    link: "https://bit.ly/41XH8av",
+    region: "brooklyn",
+    lat: 40.6677, lng: -73.9832
+  },
+  {
+    name: "Verdi Dispensary – Chelsea",
+    aka: null,
+    address: "158 West 23rd Street, New York, NY 10011",
+    phone: "(212) 933-4082",
+    link: "https://verdicannabis.com",
+    region: "manhattan",
+    lat: 40.7441, lng: -73.9970
+  },
+  {
+    name: "Weedside",
+    aka: "KiKi Buddz Corp.",
+    address: "50-22 72nd St, Woodside, NY 11377",
+    phone: "(631) 487-5898",
+    link: "https://bit.ly/4eetuXR",
+    region: "queens",
+    lat: 40.7451, lng: -73.9039
+  },
+  {
+    name: "Canna Buddha",
+    aka: null,
+    address: "215-49 39th Ave, Bayside, Queens, NY 11361",
+    phone: null,
+    link: "https://cannabuddha.us/store/category/all",
+    region: "queens",
+    lat: 40.7617, lng: -73.7730
+  },
+  {
+    name: "Goldleaf",
+    aka: null,
+    address: "235 Fairview Ave, Hudson, NY 12534",
+    phone: "(518) 567-9849",
+    link: "https://www.goldleafcannabis.com",
+    region: "upstate",
+    lat: 42.2537, lng: -73.7929
+  },
+  {
+    name: "High Tidez",
+    aka: null,
+    address: "1029 Surf Ave, Coney Island, Brooklyn, NY 11224",
+    phone: null,
+    link: "https://hightidezci.com/stores/cbj-retail/products?search=jenny",
+    region: "brooklyn",
+    lat: 40.5756, lng: -73.9818
+  },
+  {
+    name: "Strong Strains",
+    aka: "Strong Island Chronic",
+    address: "19 Technology Drive, East Setauket, NY 11733",
+    phone: null,
+    link: "https://bit.ly/41XocIX",
+    region: "li",
+    lat: 40.9280, lng: -73.1100
+  },
+  {
+    name: "Yerba Buena",
+    aka: "Astro Management",
+    address: "292 Atlantic Avenue, Brooklyn, NY 11201",
+    phone: "(917) 842-1374",
+    link: null,
+    region: "brooklyn",
+    lat: 40.6888, lng: -73.9905
+  },
+  {
+    name: "Devil's Lettuce",
+    aka: null,
+    address: "650 Orchard Park Road, West Seneca, NY 14224",
+    phone: "(585) 500-0503",
+    link: "https://bit.ly/4dbl56l",
+    region: "upstate",
+    lat: 42.8364, lng: -78.7525
+  },
+  {
+    name: "Happy Days Dispensary",
+    aka: null,
+    address: "105 Route 109, Farmingdale, NY 11735",
+    phone: "(718) 749-2154",
+    link: "https://bit.ly/4d8QmH4",
+    region: "li",
+    lat: 40.7320, lng: -73.4467
+  },
+  {
+    name: "Flower City",
+    aka: null,
+    address: "8053 Pittsford Victor Road, Victor, NY 14564",
+    phone: "(585) 559-2837",
+    link: "https://bit.ly/4w1sb52",
+    region: "upstate",
+    lat: 43.0005, lng: -77.4080
+  },
+  {
+    name: "Liberty Buds Dispensary",
+    aka: "Weeds R Us LLC",
+    address: "1115 1st Ave, New York, NY 10065",
+    phone: "(917) 682-7576",
+    link: "https://bit.ly/3QsecVD",
+    region: "manhattan",
+    lat: 40.7624, lng: -73.9604
+  },
+  {
+    name: "Planet Nugg",
+    aka: "AQR Development Funding",
+    address: "2043 Wellwood Ave, Farmingdale, NY 11735",
+    phone: "(631) 460-3441",
+    link: null,
+    region: "li",
+    lat: 40.7214, lng: -73.4409
+  },
+  {
+    name: "Purple Plains Dispensary",
+    aka: "SMMB INC.",
+    address: "32 Westchester Avenue, Pound Ridge, NY",
+    phone: "(914) 224-6537",
+    link: "https://bit.ly/4tyRzgB",
+    region: "upstate",
+    lat: 41.2101, lng: -73.5727
+  }
+];
+
+// ─────────────────────────────────────────────
+// REGION LABELS
+// ─────────────────────────────────────────────
+const regionLabel = {
+  manhattan: "Manhattan",
+  brooklyn:  "Brooklyn",
+  bronx:     "The Bronx",
+  queens:    "Queens",
+  si:        "Staten Island",
+  upstate:   "Upstate NY",
+  li:        "Long Island"
+};
+
+// ─────────────────────────────────────────────
+// MAP INIT
+// ─────────────────────────────────────────────
+const map = L.map('map', {
+  center: [40.93, -73.95],
+  zoom: 9,
+  zoomControl: true
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+// Custom pink marker icon
+function makeIcon(active = false) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:30px; height:30px;
+      background:${active ? '#a34d64' : '#c8647a'};
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      border:3px solid white;
+      box-shadow:0 3px 10px rgba(200,100,122,0.45);
+      transition:all 0.2s;
+    "></div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30]
+  });
+}
+
+// ─────────────────────────────────────────────
+// BUILD MARKERS + SIDEBAR
+// ─────────────────────────────────────────────
+let markers = [];
+let activeCard = null;
+let activeMarkerIdx = null;
+let currentFilter = 'all';
+let currentSearch = '';
+
+function dirLink(store) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(store.address)}`;
+}
+
+function buildPopup(store) {
+  const shopBtn = store.link
+    ? `<a href="${store.link}" target="_blank" rel="noopener" class="btn-shop">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Shop Jenny's Products
+      </a>`
+    : `<span style="font-size:0.72rem;color:#999;font-style:italic;">Products link coming soon</span>`;
+
+  return `
+    <div class="popup-inner">
+      <div class="popup-name">${store.name}</div>
+      ${store.aka ? `<div style="font-size:0.73rem;color:#b08090;margin-bottom:5px;font-style:italic;">${store.aka}</div>` : ''}
+      <div class="popup-addr">${store.address}</div>
+      ${store.phone ? `<div class="popup-phone">📞 ${store.phone}</div>` : ''}
+    </div>
+    <div class="popup-actions">
+      ${shopBtn}
+      <a href="${dirLink(store)}" target="_blank" rel="noopener" class="btn-directions">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Directions
+      </a>
+    </div>`;
+}
+
+// Init all markers
+stores.forEach((store, i) => {
+  const marker = L.marker([store.lat, store.lng], { icon: makeIcon(false) })
+    .addTo(map)
+    .bindPopup(buildPopup(store), { maxWidth: 280, minWidth: 260 });
+
+  marker.on('click', () => activateStore(i));
+  markers.push(marker);
+});
+
+// ─────────────────────────────────────────────
+// SIDEBAR RENDERING
+// ─────────────────────────────────────────────
+function renderList() {
+  const list = document.getElementById('storeList');
+  const countEl = document.getElementById('storeCount');
+  const sidebarCount = document.getElementById('sidebarCount');
+  list.innerHTML = '';
+
+  const filtered = stores.map((s, i) => ({ s, i })).filter(({ s }) => {
+    const matchRegion = currentFilter === 'all' || s.region === currentFilter;
+    const q = currentSearch.toLowerCase();
+    const matchSearch = !q || s.name.toLowerCase().includes(q) ||
+      (s.aka && s.aka.toLowerCase().includes(q)) ||
+      s.address.toLowerCase().includes(q);
+    return matchRegion && matchSearch;
+  });
+
+  countEl.textContent = `${filtered.length} Location${filtered.length !== 1 ? 's' : ''}`;
+  sidebarCount.textContent = `Showing ${filtered.length} of ${stores.length} stores`;
+
+  // Hide/show markers
+  stores.forEach((_, i) => {
+    const inFilter = filtered.some(f => f.i === i);
+    if (inFilter) {
+      if (!map.hasLayer(markers[i])) markers[i].addTo(map);
+    } else {
+      if (map.hasLayer(markers[i])) markers[i].remove();
+    }
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="no-results">
+      <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <div>No stores found.<br>Try a different search or filter.</div>
+    </div>`;
+    return;
+  }
+
+  filtered.forEach(({ s, i }, idx) => {
+    const card = document.createElement('div');
+    card.className = 'store-card' + (activeMarkerIdx === i ? ' active' : '');
+    card.id = `card-${i}`;
+
+    const shopBtn = s.link
+      ? `<a href="${s.link}" target="_blank" rel="noopener" class="btn-shop">
+          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Shop Products
+        </a>`
+      : ``;
+
+    card.innerHTML = `
+      <div class="store-num">${idx + 1}</div>
+      <div class="store-info">
+        <div class="store-name">${s.name}</div>
+        ${s.aka ? `<div style="font-size:0.73rem;color:#b08090;margin-bottom:3px;font-style:italic;">${s.aka}</div>` : ''}
+        <div class="store-addr">${s.address}</div>
+        ${s.phone ? `<div class="store-phone"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>${s.phone}</div>` : ''}
+        <div class="store-tags">
+          <span class="tag tag-region">${regionLabel[s.region] || s.region}</span>
+          ${!s.link ? '<span class="tag tag-no-link">Products link coming soon</span>' : ''}
+        </div>
+        <div class="store-links">
+          ${shopBtn}
+          <a href="${dirLink(s)}" target="_blank" rel="noopener" class="btn-directions">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            Directions
+          </a>
+        </div>
+      </div>`;
+
+    card.addEventListener('click', () => activateStore(i));
+    list.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────
+// ACTIVATE STORE (sync map + sidebar)
+// ─────────────────────────────────────────────
+function activateStore(idx) {
+  // Reset previous
+  if (activeMarkerIdx !== null) {
+    markers[activeMarkerIdx].setIcon(makeIcon(false));
+    const prevCard = document.getElementById(`card-${activeMarkerIdx}`);
+    if (prevCard) prevCard.classList.remove('active');
+  }
+
+  activeMarkerIdx = idx;
+  markers[idx].setIcon(makeIcon(true));
+  markers[idx].openPopup();
+
+  map.flyTo([stores[idx].lat, stores[idx].lng], 14, { duration: 0.8 });
+
+  const card = document.getElementById(`card-${idx}`);
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ─────────────────────────────────────────────
+// FILTERS + SEARCH
+// ─────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.region;
+    activeMarkerIdx = null;
+
+    // Zoom to region
+    const regionZoom = {
+      all:       { center: [40.93, -73.95], zoom: 9 },
+      manhattan: { center: [40.754, -73.984], zoom: 12 },
+      brooklyn:  { center: [40.651, -73.962], zoom: 12 },
+      bronx:     { center: [40.845, -73.876], zoom: 12 },
+      queens:    { center: [40.728, -73.800], zoom: 11 },
+      upstate:   { center: [42.500, -74.800], zoom: 7 },
+      li:        { center: [40.789, -73.135], zoom: 9 },
+      si:        { center: [40.580, -74.150], zoom: 12 }
+    };
+    const z = regionZoom[currentFilter] || regionZoom.all;
+    map.flyTo(z.center, z.zoom, { duration: 0.9 });
+
+    renderList();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  currentSearch = e.target.value;
+  renderList();
+});
+
+// Map popup close → deactivate card highlight
+map.on('popupclose', () => {
+  if (activeMarkerIdx !== null) {
+    markers[activeMarkerIdx].setIcon(makeIcon(false));
+    const prevCard = document.getElementById(`card-${activeMarkerIdx}`);
+    if (prevCard) prevCard.classList.remove('active');
+    activeMarkerIdx = null;
+  }
+});
+
+// ─────────────────────────────────────────────
+// INITIAL RENDER
+// ─────────────────────────────────────────────
+renderList();
+</script>
+</body>
+</html>
